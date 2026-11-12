@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>米果日韓團 CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+<style>
+/* 版面：單欄卡片流，頂部切日本團／韓國團；配色取米果粉＋奶油 */
+:root {
+  --bg: #fbf7f4; --panel: #ffffff; --fg: #3d2a22; --muted: #8a7468; --line: #eadfd8;
+  --jp: #d9607a; --kr: #4f7cc4; --ok: #3f9b6e; --warn: #d99a2b; --bad: #c4513f;
+  --sans: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; --serif: "Noto Serif TC", "PMingLiU", serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root { --bg: #1d1714; --panel: #27201c; --fg: #f3e9e3; --muted: #b3a196; --line: #3b302a; --jp: #ee8aa0; --kr: #85a8e6; color-scheme: dark; } }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+#app { display: grid; gap: 22px; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
+h1 { font-family: var(--serif); font-weight: 600; font-size: 30px; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 6px 0 0; max-width: 72ch; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 3px; background: var(--panel); }
+.toggle button, .pick button { font: inherit; border: 0; background: transparent; color: var(--muted); padding: 6px 16px; border-radius: 999px; cursor: pointer; }
+.toggle button.on { background: var(--fg); color: var(--bg); }
+button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.tile, .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; min-width: 0; }
+.tile .k { color: var(--muted); font-size: 13px; }
+.tile .v { font-family: var(--serif); font-size: 28px; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.card h2 { font-size: 18px; margin: 0 0 2px; font-weight: 700; }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
+.chart { position: relative; min-height: 220px; }
+.chart svg text { fill: var(--muted); font-size: 12px; font-family: var(--sans); }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 6px 18px rgba(0,0,0,.12); border-radius: 8px; padding: 6px 10px; font-size: 12px; white-space: nowrap; opacity: 0; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-size: 12px; font-weight: 500; white-space: nowrap; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+.seg { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); white-space: nowrap; }
+.seg-VIP { background: color-mix(in srgb, var(--ok) 20%, transparent); }
+.seg-快流失 { background: color-mix(in srgb, var(--warn) 25%, transparent); }
+.seg-沉睡 { background: color-mix(in srgb, var(--bad) 16%, transparent); }
+.plays { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.play { border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.play h3 { margin: 0 0 6px; font-size: 15px; font-weight: 500; }
+.play p { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+.play blockquote { margin: 0; padding: 8px 10px; border-left: 3px solid var(--line); font-size: 13px; }
+.pick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.pick button { border: 1px solid var(--line); font-size: 13px; padding: 4px 12px; color: var(--fg); }
+.pick button.on { background: var(--fg); color: var(--bg); }
+.search { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--fg); border-radius: 8px; padding: 6px 10px; width: min(260px, 100%); }
+details summary { cursor: pointer; color: var(--muted); }
+details p { color: var(--muted); font-size: 13px; max-width: 80ch; }
+.lock { min-height: 70vh; display: grid; place-items: center; }
+.lock form { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 28px; display: grid; gap: 12px; width: min(360px, 100%); }
+.lock input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); }
+.lock button { font: inherit; padding: 10px; border: 0; border-radius: 10px; background: var(--jp); color: #fff; cursor: pointer; }
+.err { color: var(--bad); font-size: 13px; min-height: 1.2em; margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="lock" id="lock">
+    <form id="lockform">
+      <h1>米果日韓團 CRM</h1>
+      <label for="pw" class="sub" style="margin:0">內部資料，請輸入密碼</label>
+      <input id="pw" type="password" autocomplete="current-password" required>
+      <button type="submit" id="go">打開</button>
+      <p class="err" id="err"></p>
+    </form>
+  </div>
+
+  <main id="app" hidden>
+    <header>
+      <div class="row">
+        <h1>米果日韓團 CRM</h1>
+        <div class="toggle" role="group" aria-label="日本團或韓國團">
+          <button type="button" data-c="JP" class="on">日本團</button>
+          <button type="button" data-c="KR">韓國團</button>
+        </div>
+      </div>
+      <p class="lede">2022/08～2026/11/12 的 ERP 零售訂單（就醬播第1台、第2台、FB BUY、官網、蝦皮），每一件商品依料品廠商分成日本或韓國。<span id="lede"></span></p>
+    </header>
+
+    <section class="tiles">
+      <div class="tile"><div class="k">買過的客人</div><div class="v" id="k1">—</div></div>
+      <div class="tile"><div class="k">累積營收</div><div class="v" id="k2">—</div></div>
+      <div class="tile"><div class="k">近 90 天有買的客人</div><div class="v" id="k3">—</div></div>
+      <div class="tile"><div class="k">每位客人平均</div><div class="v" id="k4">—</div></div>
+    </section>
+
+    <section class="card"><h2>每月營收：日本 vs 韓國</h2><p class="sub">依訂單日期，新台幣。2026/11 只到 11/12。滑過去看每個月。</p><div class="chart" id="trend"></div></section>
+
+    <div class="two">
+      <section class="card"><h2>客群分群（RFM）人數</h2><p class="sub">以 2026/11/12 為基準：最近一次買、買幾次、買多少。</p><div class="chart" id="segchart"></div></section>
+      <section class="card"><h2>最會賣的品牌</h2><p class="sub">累積營收前 10 名廠商（已刪除的料品不列入）。</p><div class="chart" id="brandchart"></div></section>
+    </div>
+
+    <section class="card"><h2>各客群人數與營收</h2>
+      <div class="scroll"><table><thead><tr><th>客群</th><th>怎麼分</th><th class="n">人數</th><th class="n">累積營收</th><th class="n">平均每人</th><th class="n">營收占比</th></tr></thead><tbody id="segrows"></tbody></table></div>
+    </section>
+
+    <section class="card"><h2>CRM 行銷建議</h2><p class="sub">每一群的做法和可以直接改來用的 LINE／社團文案。名單在下面「客人名單」挑客群。</p>
+      <div class="plays">
+        <div class="play"><h3><span class="seg seg-VIP">VIP</span> 近 120 天有買、累積 10 萬以上</h3><p>目的：留住、讓她覺得被特別對待。新品先看、專屬加碼、生日禮。</p><blockquote>親愛的 VIP 寶貝～這一團新品先給妳看 💕 今晚直播前 VIP 專屬加碼贈品已經準備好囉，留言「VIP」小編幫妳保留！</blockquote></div>
+        <div class="play"><h3><span class="seg">忠實常客</span> 近 120 天有買、買過 5 次以上</h3><p>目的：往 VIP 推。多件優惠、集點、帶朋友。</p><blockquote>謝謝妳每一團都來支持 🙌 這團買 3 件再折，揪朋友一起下單兩個人都送小禮物，名額有限喔！</blockquote></div>
+        <div class="play"><h3><span class="seg">新客</span> 第一次買在 90 天內</h3><p>目的：讓第二單發生。介紹熱賣款、第二單優惠、教怎麼看直播。</p><blockquote>歡迎第一次來米果家 🌷 第二次下單小編送妳專屬小禮，直播 +1 怎麼喊、怎麼結帳都可以問小編喔～</blockquote></div>
+        <div class="play"><h3><span class="seg seg-快流失">快流失</span> 121～365 天沒買、以前常買</h3><p>目的：喚回。用她最常買的品牌開場，給限時回購優惠。</p><blockquote>好久不見～妳之前最愛的那家又到新貨了！這週回來下單滿額送購物金，期限到週日喔 ⏰</blockquote></div>
+        <div class="play"><h3><span class="seg seg-沉睡">沉睡</span> 超過 365 天沒買</h3><p>目的：低成本喚醒。大型活動（生日場、雙 11）再通知一次，不要每週打擾。</p><blockquote>米果生日場要開囉 🎂 好久沒看到妳了，這場有全年最低價和抽獎，回來玩玩吧！</blockquote></div>
+        <div class="play"><h3><span class="seg">一般</span> 其他客人</h3><p>目的：維持熱度。照平常推播，挑她買過的品類推。</p><blockquote>這週日本／韓國新貨整理好了 ✨ 直播時間和商品清單在社團置頂，喜歡的先收藏！</blockquote></div>
+      </div>
+    </section>
+
+    <section class="card"><h2>客人名單</h2><p class="sub">挑客群列出這一團累積營收前 200 位；也可以直接搜尋名字。</p>
+      <div class="row" style="justify-content:flex-start">
+        <div class="pick" role="group" aria-label="客群" id="pick">
+          <button type="button" data-s="VIP" class="on">VIP</button><button type="button" data-s="忠實常客">忠實常客</button><button type="button" data-s="新客">新客</button><button type="button" data-s="快流失">快流失</button><button type="button" data-s="沉睡">沉睡</button><button type="button" data-s="一般">一般</button>
+        </div>
+        <input class="search" id="q" type="search" placeholder="搜尋客人名字" aria-label="搜尋客人名字">
+      </div>
+      <div class="scroll"><table><thead><tr><th>客人（收件人）</th><th>客群</th><th class="n">這一團累積</th><th class="n">訂單數</th><th>最近一次買</th><th>最常買的品牌</th></tr></thead><tbody id="mrows"></tbody></table></div>
+      <p class="sub" id="mnote"></p>
+    </section>
+
+    <details><summary>資料怎麼算的</summary>
+      <p>來源：ERP「訂單匯出」（訂單料品＋訂單銷售項目，不含無效訂單）與「料品匯出」。只算零售賣場（就醬播第1台、第2台、FB BUY、MEESHOP 官網、矽羽官方網站、蝦皮、米媽專屬賣場、PINKOI），不含批發和樣品。</p>
+      <p>金額＝銷售項目數量 × 單價（0 元贈品不算）。日本／韓國看料品廠商名稱開頭（日本-、日手、韓國-）；料品已被刪掉的，用同場次其他商品多數的國家來補，或看品名有沒有東京、韓國等字。台灣等其他廠商不算進日本團、韓國團。</p>
+      <p>客人用「收件人姓名」辨認（ERP 購買人欄大多空白），所以同名會被算成同一位、同一人用不同收件名會被拆開。資料是 2026/11/12 的快照，不會自己更新。</p>
+    </details>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="data.js"></script>
+<script>
+const REF = Date.parse('2026-11-12');
+const NAME = { JP: '日本團', KR: '韓國團' };
+const SEGS = ['VIP', '忠實常客', '新客', '快流失', '沉睡', '一般'];
+const RULE = { VIP: '近 120 天有買、累積 ≥ 10 萬', 忠實常客: '近 120 天有買、≥ 5 筆訂單', 新客: '第一次買在 90 天內', 快流失: '121～365 天沒買、≥ 3 筆或 ≥ 2 萬', 沉睡: '超過 365 天沒買', 一般: '其他' };
+const fmt = (n) => '$' + d3.format(',')(Math.round(n)), cnt = d3.format(',');
+const days = (d) => d ? Math.round((REF - Date.parse(d)) / 864e5) : null;
+let DATA, MEM, state = { c: 'JP', s: 'VIP', q: '' };
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+async function unlock(pw) {
+  const E = window.CRM_ENC;
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(E.s), iterations: E.n, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  const gz = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(E.i) }, key, b64(E.d));
+  const txt = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+  return JSON.parse(txt);
+}
+document.getElementById('lockform').addEventListener('submit', async (e) => {
+  e.preventDefault(); const err = document.getElementById('err'); err.textContent = '解鎖中…';
+  try {
+    DATA = await unlock(document.getElementById('pw').value);
+    try { sessionStorage.setItem('crm_pw', document.getElementById('pw').value); } catch (x) {}
+    start();
+  } catch (x) { err.textContent = '密碼不對，請再試一次'; }
+});
+(async () => { try { const p = sessionStorage.getItem('crm_pw'); if (p) { DATA = await unlock(p); start(); } } catch (x) {} })();
+
+function start() {
+  document.getElementById('lock').hidden = true; document.getElementById('app').hidden = false;
+  MEM = [];
+  for (const c of ['JP', 'KR']) for (const x of DATA.customers) {
+    const m = +x[c + '_spend'] || 0; if (!m) continue;
+    const f = +x[c + '_orders'] || 0, r = days(x[c + '_last']), age = days(x[c + '_first']);
+    const s = m >= 100000 && r <= 120 ? 'VIP' : f >= 5 && r <= 120 ? '忠實常客' : age <= 90 ? '新客' : r > 365 ? '沉睡' : (r > 120 && (f >= 3 || m >= 20000)) ? '快流失' : '一般';
+    MEM.push({ c, name: x.name, s, m, f, last: x[c + '_last'], r, brands: x[c + '_brands'] || '' });
+  }
+  document.querySelectorAll('.toggle button').forEach((b) => b.onclick = () => { state.c = b.dataset.c; document.querySelectorAll('.toggle button').forEach((x) => x.classList.toggle('on', x === b)); render(); });
+  document.querySelectorAll('#pick button').forEach((b) => b.onclick = () => { state.s = b.dataset.s; state.q = ''; document.getElementById('q').value = ''; document.querySelectorAll('#pick button').forEach((x) => x.classList.toggle('on', x === b)); members(); });
+  document.getElementById('q').oninput = (e) => { state.q = e.target.value.trim(); members(); };
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(render, 150); });
+  render();
+}
+
+function render() {
+  const c = state.c, mine = MEM.filter((x) => x.c === c), tot = d3.sum(mine, (x) => x.m);
+  document.getElementById('k1').textContent = cnt(mine.length);
+  document.getElementById('k2').textContent = tot >= 1e8 ? '$' + (tot / 1e8).toFixed(2) + ' 億' : '$' + (tot / 1e4).toFixed(0) + ' 萬';
+  document.getElementById('k3').textContent = cnt(mine.filter((x) => x.r <= 90).length);
+  document.getElementById('k4').textContent = fmt(tot / (mine.length || 1));
+  const segs = SEGS.map((s) => { const g = mine.filter((x) => x.s === s), sp = d3.sum(g, (x) => x.m); return { s, n: g.length, sp, avg: g.length ? sp / g.length : 0, share: tot ? sp / tot * 100 : 0 }; });
+  const vip = segs[0], risk = segs[3];
+  document.getElementById('lede').textContent = ` ${NAME[c]}：VIP ${cnt(vip.n)} 位撐起 ${vip.share.toFixed(1)}% 營收，快流失有 ${cnt(risk.n)} 位可以先喚回。`;
+  const tb = document.getElementById('segrows'); tb.replaceChildren();
+  for (const g of segs) {
+    const tr = tb.insertRow(); const sp = document.createElement('span'); sp.className = 'seg seg-' + g.s; sp.textContent = g.s; tr.insertCell().append(sp);
+    tr.insertCell().textContent = RULE[g.s];
+    for (const v of [cnt(g.n), fmt(g.sp), fmt(g.avg), g.share.toFixed(1) + '%']) { const td = tr.insertCell(); td.className = 'n'; td.textContent = v; }
+  }
+  trend(); bars('segchart', segs.map((g) => ({ l: g.s, v: g.n })), (v) => cnt(v) + ' 位', '各客群人數');
+  const br = DATA.brands.filter((b) => b.country === c).sort((a, z) => z.spend - a.spend).slice(0, 10).map((b) => ({ l: String(b.brand).replace(/\s*\(.*?\)\s*/g, '').slice(0, 18), v: b.spend }));
+  bars('brandchart', br, (v) => v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : fmt(v), '品牌累積營收前十名');
+  members();
+}
+
+function trend() {
+  const el = document.getElementById('trend'); el.replaceChildren();
+  const rows = DATA.monthly, W = el.clientWidth || 600, H = 260, ml = 52, mr = 12, mt = 12, mb = 26;
+  const x = d3.scalePoint().domain(rows.map((r) => r.month)).range([ml, W - mr]);
+  const y = d3.scaleLinear().domain([0, d3.max(rows, (r) => Math.max(r.JP, r.KR))]).nice().range([H - mb, mt]);
+  const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('role', 'img').attr('aria-label', '每月營收，日本與韓國兩條線');
+  svg.append('g').attr('transform', `translate(${ml},0)`).call(d3.axisLeft(y).ticks(5).tickFormat((v) => v >= 1e6 ? v / 1e6 + 'M' : d3.format(',')(v)).tickSize(-(W - ml - mr))).call((g) => { g.select('.domain').remove(); g.selectAll('line').style('stroke', css('--line')); });
+  const ticks = rows.map((r) => r.month).filter((m, i) => m.endsWith('-01') || i === 0);
+  svg.append('g').attr('transform', `translate(0,${H - mb})`).call(d3.axisBottom(x).tickValues(ticks).tickFormat((v) => v.replace('-', '/'))).call((g) => g.selectAll('line,.domain').style('stroke', css('--line')));
+  for (const c of ['JP', 'KR']) {
+    const col = css(c === 'JP' ? '--jp' : '--kr');
+    svg.append('path').datum(rows).attr('fill', 'none').style('stroke', col).attr('stroke-width', c === state.c ? 2.6 : 1.3).style('opacity', c === state.c ? 1 : .5).attr('d', d3.line().x((r) => x(r.month)).y((r) => y(r[c])));
+  }
+  const lg = svg.append('g').attr('transform', `translate(${ml + 8},${mt + 4})`);
+  [['JP', '日本'], ['KR', '韓國']].forEach(([c, l], i) => { lg.append('rect').attr('x', i * 64).attr('y', 0).attr('width', 12).attr('height', 3).attr('fill', css(c === 'JP' ? '--jp' : '--kr')); lg.append('text').attr('x', i * 64 + 16).attr('y', 5).text(l); });
+  const tip = d3.select(el).append('div').attr('class', 'tip'), guide = svg.append('line').attr('y1', mt).attr('y2', H - mb).style('stroke', css('--muted')).style('opacity', 0);
+  svg.append('rect').attr('x', ml).attr('y', mt).attr('width', W - ml - mr).attr('height', H - mt - mb).attr('fill', 'transparent').on('pointermove', (ev) => {
+    const [px] = d3.pointer(ev); const i = Math.max(0, Math.min(rows.length - 1, Math.round((px - ml) / ((W - ml - mr) / (rows.length - 1))))); const r = rows[i];
+    guide.attr('x1', x(r.month)).attr('x2', x(r.month)).style('opacity', .6);
+    tip.style('opacity', 1).style('top', '6px').style('left', Math.min(x(r.month) / W * el.clientWidth + 10, el.clientWidth - 200) + 'px').text(`${r.month}　日本 ${fmt(r.JP)}　韓國 ${fmt(r.KR)}`);
+  }).on('pointerleave', () => { tip.style('opacity', 0); guide.style('opacity', 0); });
+}
+
+function bars(id, rows, f, aria) {
+  const el = document.getElementById(id); el.replaceChildren();
+  const W = el.clientWidth || 400, bh = 26, gap = 8, H = rows.length * (bh + gap) + 4;
+  const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('role', 'img').attr('aria-label', aria);
+  let lw = 0; const tmp = svg.append('g'); rows.forEach((r) => { lw = Math.max(lw, tmp.append('text').text(r.l).node().getComputedTextLength()); }); tmp.remove();
+  lw = Math.min(lw + 10, W * .45);
+  const x = d3.scaleLinear().domain([0, d3.max(rows, (r) => r.v) || 1]).range([0, Math.max(10, W - lw - 90)]);
+  const g = svg.selectAll('g.b').data(rows).join('g').attr('transform', (r, i) => `translate(0,${i * (bh + gap)})`);
+  g.append('text').attr('x', lw - 8).attr('y', bh / 2).attr('dy', '.35em').attr('text-anchor', 'end').text((r) => r.l);
+  g.append('rect').attr('x', lw).attr('y', 2).attr('height', bh - 4).attr('rx', 4).attr('width', (r) => x(r.v)).attr('fill', css(state.c === 'JP' ? '--jp' : '--kr'));
+  g.append('text').attr('x', (r) => lw + x(r.v) + 6).attr('y', bh / 2).attr('dy', '.35em').text((r) => f(r.v));
+}
+
+function members() {
+  const tb = document.getElementById('mrows'); tb.replaceChildren();
+  let rows = MEM.filter((x) => x.c === state.c);
+  rows = state.q ? rows.filter((x) => x.name.includes(state.q)) : rows.filter((x) => x.s === state.s);
+  const total = rows.length; rows = rows.sort((a, z) => z.m - a.m).slice(0, 200);
+  for (const r of rows) {
+    const tr = tb.insertRow(); tr.insertCell().textContent = r.name;
+    const sp = document.createElement('span'); sp.className = 'seg seg-' + r.s; sp.textContent = r.s; tr.insertCell().append(sp);
+    const a = tr.insertCell(); a.className = 'n'; a.textContent = fmt(r.m);
+    const b = tr.insertCell(); b.className = 'n'; b.textContent = cnt(r.f);
+    tr.insertCell().textContent = `${r.last}（${r.r} 天前）`; tr.insertCell().textContent = r.brands;
+  }
+  document.getElementById('mnote').textContent = total > 200 ? `共 ${cnt(total)} 位，這裡列前 200 位。` : `共 ${cnt(total)} 位。`;
+}
+</script>
+</body>
+</html>
