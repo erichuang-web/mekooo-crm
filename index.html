@@ -118,21 +118,21 @@ details p { color: var(--muted); font-size: 13px; max-width: 80ch; }
       </div>
     </section>
 
-    <section class="card"><h2>客人名單</h2><p class="sub">挑客群列出這一團累積營收前 200 位；也可以直接搜尋名字。</p>
+    <section class="card"><h2>客人名單</h2><p class="sub">挑客群列出這一團累積營收前 200 位；也可以直接搜尋名字。每年＝這一團當年的金額；「不分團全部」含日本、韓國和台灣等其他廠商。</p>
       <div class="row" style="justify-content:flex-start">
         <div class="pick" role="group" aria-label="客群" id="pick">
           <button type="button" data-s="VIP" class="on">VIP</button><button type="button" data-s="忠實常客">忠實常客</button><button type="button" data-s="新客">新客</button><button type="button" data-s="快流失">快流失</button><button type="button" data-s="沉睡">沉睡</button><button type="button" data-s="一般">一般</button>
         </div>
         <input class="search" id="q" type="search" placeholder="搜尋客人名字" aria-label="搜尋客人名字">
       </div>
-      <div class="scroll"><table><thead><tr><th>客人（收件人）</th><th>客群</th><th class="n">這一團累積</th><th class="n">訂單數</th><th>最近一次買</th><th>最常買的品牌</th></tr></thead><tbody id="mrows"></tbody></table></div>
+      <div class="scroll"><table><thead><tr><th>客人（收件人）</th><th>客群</th><th class="n">這一團累積</th><th class="n">2022</th><th class="n">2023</th><th class="n">2024</th><th class="n">2025</th><th class="n">2026</th><th class="n">訂單數</th><th class="n">不分團全部</th><th>最近一次買</th><th>最常買的品牌</th></tr></thead><tbody id="mrows"></tbody></table></div>
       <p class="sub" id="mnote"></p>
     </section>
 
     <details><summary>資料怎麼算的</summary>
       <p>來源：ERP「訂單匯出」（訂單料品＋訂單銷售項目，不含無效訂單）與「料品匯出」。只算零售賣場（就醬播第1台、第2台、FB BUY、MEESHOP 官網、矽羽官方網站、蝦皮、米媽專屬賣場、PINKOI），不含批發和樣品。</p>
       <p>金額＝銷售項目數量 × 單價（0 元贈品不算）。日本／韓國看料品廠商名稱開頭（日本-、日手、韓國-）；料品已被刪掉的，用同場次其他商品多數的國家來補，或看品名有沒有東京、韓國等字。台灣等其他廠商不算進日本團、韓國團。</p>
-      <p>客人用「收件人姓名」辨認（ERP 購買人欄大多空白），所以同名會被算成同一位、同一人用不同收件名會被拆開。資料是 2026/11/12 的快照，不會自己更新。</p>
+      <p>客人用「收件人姓名」辨認（ERP 購買人欄大多空白）。同一人的不同寫法會合併：後面的備註（-補寄、---確認是否合併、+PA…）拿掉、兩個名字順序對調算同一位；只寫一個名字的（例：王昭惠）如果只出現在一組「A、B」裡就併進去。同名不同人仍可能被算成同一位。台灣代理 AX樂勲（axes femme）算日本。資料是 2026/11/12 的快照，不會自己更新。</p>
     </details>
   </main>
 </div>
@@ -175,7 +175,7 @@ function start() {
     const m = +x[c + '_spend'] || 0; if (!m) continue;
     const f = +x[c + '_orders'] || 0, r = days(x[c + '_last']), age = days(x[c + '_first']);
     const s = m >= 100000 && r <= 120 ? 'VIP' : f >= 5 && r <= 120 ? '忠實常客' : age <= 90 ? '新客' : r > 365 ? '沉睡' : (r > 120 && (f >= 3 || m >= 20000)) ? '快流失' : '一般';
-    MEM.push({ c, name: x.name, s, m, f, last: x[c + '_last'], r, brands: x[c + '_brands'] || '' });
+    MEM.push({ c, name: x.name, s, m, f, last: x[c + '_last'], r, brands: x[c + '_brands'] || '', ys: ['2022', '2023', '2024', '2025', '2026'].map((y) => +x[c + '_' + y] || 0), all: +x.total || 0 });
   }
   document.querySelectorAll('.toggle button').forEach((b) => b.onclick = () => { state.c = b.dataset.c; document.querySelectorAll('.toggle button').forEach((x) => x.classList.toggle('on', x === b)); render(); });
   document.querySelectorAll('#pick button').forEach((b) => b.onclick = () => { state.s = b.dataset.s; state.q = ''; document.getElementById('q').value = ''; document.querySelectorAll('#pick button').forEach((x) => x.classList.toggle('on', x === b)); members(); });
@@ -250,7 +250,9 @@ function members() {
     const tr = tb.insertRow(); tr.insertCell().textContent = r.name;
     const sp = document.createElement('span'); sp.className = 'seg seg-' + r.s; sp.textContent = r.s; tr.insertCell().append(sp);
     const a = tr.insertCell(); a.className = 'n'; a.textContent = fmt(r.m);
+    for (const v of r.ys) { const y = tr.insertCell(); y.className = 'n'; y.textContent = v ? fmt(v) : '—'; }
     const b = tr.insertCell(); b.className = 'n'; b.textContent = cnt(r.f);
+    const t2 = tr.insertCell(); t2.className = 'n'; t2.textContent = fmt(r.all);
     tr.insertCell().textContent = `${r.last}（${r.r} 天前）`; tr.insertCell().textContent = r.brands;
   }
   document.getElementById('mnote').textContent = total > 200 ? `共 ${cnt(total)} 位，這裡列前 200 位。` : `共 ${cnt(total)} 位。`;
